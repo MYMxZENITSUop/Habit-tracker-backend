@@ -4,16 +4,22 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.database import engine, Base
 from app.models import user, task, refresh_token
+
 from app.routes.user import router as user_router
 from app.routes.task import router as task_router
+from app.routes.auth_email import router as email_auth_router
+from app.routes.auth_phone import router as auth_phone_router
 
+# =========================
+# APP INIT (MUST BE FIRST)
+# =========================
 app = FastAPI(
     title="Task Manager API",
     version="1.0.0",
 )
 
 # =========================
-# CORS (safe default)
+# CORS
 # =========================
 app.add_middleware(
     CORSMiddleware,
@@ -39,13 +45,13 @@ def startup_event():
             retries -= 1
             time.sleep(2)
 
-
 # =========================
-# ROUTERS
+# ROUTERS (AFTER app init)
 # =========================
 app.include_router(user_router)
 app.include_router(task_router)
-
+app.include_router(email_auth_router)
+app.include_router(auth_phone_router)
 
 # =========================
 # ROOT

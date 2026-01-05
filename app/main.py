@@ -9,6 +9,8 @@ from app.routes.user import router as user_router
 from app.routes.task import router as task_router
 from app.routes.auth_email import router as email_auth_router
 from app.routes.auth_phone import router as auth_phone_router
+from app.core.firebase import init_firebase
+
 
 # =========================
 # APP INIT (MUST BE FIRST)
@@ -17,6 +19,8 @@ app = FastAPI(
     title="Task Manager API",
     version="1.0.0",
 )
+init_firebase()
+
 
 # =========================
 # CORS

@@ -1,36 +1,26 @@
-import smtplib
-from email.message import EmailMessage
 import os
+from sendgrid import SendGridAPIClient
+from sendgrid.helpers.mail import Mail
 
-SMTP_EMAIL = os.getenv("SMTP_EMAIL")
-SMTP_PASSWORD = os.getenv("SMTP_PASSWORD")
-SMTP_HOST = os.getenv("SMTP_HOST", "smtp.gmail.com")
-SMTP_PORT = int(os.getenv("SMTP_PORT", 587))
-
+SENDGRID_API_KEY = os.getenv("SENDGRID_API_KEY")
+FROM_EMAIL = os.getenv("FROM_EMAIL")
 
 def send_otp_email(to_email: str, otp: str):
-    if not SMTP_EMAIL or not SMTP_PASSWORD:
-        raise RuntimeError("SMTP_EMAIL or SMTP_PASSWORD not set")
-
-    msg = EmailMessage()
-    msg["Subject"] = "Your OTP Code"
-    msg["From"] = SMTP_EMAIL
-    msg["To"] = to_email
-    msg.set_content(
-        f"""
-Your OTP code is: {otp}
-
-This code will expire in 5 minutes.
-If you did not request this, please ignore this email.
-"""
+    message = Mail(
+        from_email=FROM_EMAIL,
+        to_emails=to_email,
+        subject="Your OTP Code",
+        html_content=f"""
+        <p>Your OTP code is:</p>
+        <h2>{otp}</h2>
+        <p>This code will expire in 5 minutes.</p>
+        """
     )
 
     try:
-        with smtplib.SMTP(SMTP_HOST, SMTP_PORT, timeout=10) as server:
-            server.starttls()
-            server.login(SMTP_EMAIL, SMTP_PASSWORD)
-            server.send_message(msg)
-
+        sg = SendGridAPIClient(SENDGRID_API_KEY)
+        sg.send(message)
     except Exception as e:
-        print("❌ Email sending failed:", str(e))
+        print("❌ Email sending failed:", e)
         raise
+

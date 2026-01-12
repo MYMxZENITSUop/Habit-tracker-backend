@@ -10,6 +10,8 @@ from app.routes.user import router as user_router
 from app.routes.task import router as task_router
 from app.routes.auth_email import router as email_auth_router
 from app.routes.auth_phone import router as auth_phone_router
+from app.routes.auth_google import router as google_auth_router
+
 
 
 # =========================
@@ -58,6 +60,8 @@ app.include_router(user_router)
 app.include_router(task_router)
 app.include_router(email_auth_router)
 app.include_router(auth_phone_router)
+app.include_router(google_auth_router)
+
 
 # =========================
 # ROOT

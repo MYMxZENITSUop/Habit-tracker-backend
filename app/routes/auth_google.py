@@ -1,6 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from firebase_admin import auth as firebase_auth
+from pydantic import BaseModel
+from datetime import datetime, timedelta
 
 from app.database import get_db
 from app.models.user import User
@@ -8,28 +10,33 @@ from app.models.refresh_token import RefreshToken
 from app.core.security import (
     create_access_token,
     create_refresh_token,
+    REFRESH_TOKEN_EXPIRE_DAYS,
 )
-from datetime import datetime, timedelta
-from app.core.security import REFRESH_TOKEN_EXPIRE_DAYS
 
 router = APIRouter(prefix="/auth", tags=["Auth - Google"])
 
 
+# ✅ Request schema (IMPORTANT)
+class GoogleAuthRequest(BaseModel):
+    firebase_token: str
+
+
 @router.post("/google")
 def google_auth(
-    firebase_token: dict,
+    payload: GoogleAuthRequest,
     db: Session = Depends(get_db),
 ):
     """
     Expects:
     {
-      "firebase_token": "<ID_TOKEN>"
+      "firebase_token": "<FIREBASE_ID_TOKEN>"
     }
     """
 
+    # 🔐 Verify Firebase ID token
     try:
         decoded_token = firebase_auth.verify_id_token(
-            firebase_token["firebase_token"]
+            payload.firebase_token
         )
     except Exception:
         raise HTTPException(
@@ -54,7 +61,7 @@ def google_auth(
         user = User(
             name=name,
             email=email,
-            hashed_password="",  # no password for Google users
+            hashed_password="",  # Google users don't need password
             role="user",
         )
         db.add(user)

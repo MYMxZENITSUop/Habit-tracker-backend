@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status, Query
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from sqlalchemy import or_
+from pydantic import BaseModel
 from typing import List
 from datetime import timedelta, datetime
 
@@ -128,12 +129,18 @@ def login_user(
 # =========================
 # REFRESH ACCESS TOKEN
 # =========================
+
+class RefreshRequest(BaseModel):
+    refresh_token: str
+
 @router.post("/refresh", response_model=TokenResponse)
 def refresh_access_token(
-    refresh_token: str,
+    payload: RefreshRequest,
     db: Session = Depends(get_db),
 ):
-    payload = verify_refresh_token(refresh_token)
+    refresh_token = payload.refresh_token
+
+    payload_data = verify_refresh_token(refresh_token)
 
     token_entry = (
         db.query(RefreshToken)
@@ -151,7 +158,7 @@ def refresh_access_token(
         )
 
     new_access_token = create_access_token(
-        data={"sub": payload["sub"]},
+        data={"sub": payload_data["sub"]},
         expires_delta=timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES),
     )
 

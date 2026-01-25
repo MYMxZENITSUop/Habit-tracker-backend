@@ -14,7 +14,7 @@ from app.routes.auth_google import router as google_auth_router
 
 
 app = FastAPI(
-    title="Task Manager API",
+    title="HABIT TRACKER API",
     version="1.0.0",
 )
 

@@ -172,8 +172,14 @@ def refresh_access_token(
 # =========================
 # LOGOUT
 # =========================
+class LogoutRequest(BaseModel):
+    refresh_token: str
+
+
 @router.post("/logout")
-def logout(refresh_token: str, db: Session = Depends(get_db)):
+def logout(payload: LogoutRequest, db: Session = Depends(get_db)):
+    refresh_token = payload.refresh_token
+
     token_entry = (
         db.query(RefreshToken)
         .filter(RefreshToken.token == refresh_token)

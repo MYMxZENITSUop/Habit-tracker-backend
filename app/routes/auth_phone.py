@@ -47,8 +47,9 @@ def verify_phone_otp(
     db.commit()
     db.refresh(user)
 
-    access_token = create_access_token({"sub": phone})
-    refresh_token = create_refresh_token({"sub": phone})
+    # ✅ FIXED: always use user.id in JWT
+    access_token = create_access_token({"sub": str(user.id)})
+    refresh_token = create_refresh_token({"sub": str(user.id)})
 
     return {
         "access_token": access_token,

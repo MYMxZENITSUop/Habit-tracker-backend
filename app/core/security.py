@@ -115,9 +115,9 @@ def get_current_user(
 ):
     try:
         payload = jwt.decode(token, ACCESS_SECRET_KEY, algorithms=[ALGORITHM])
-        email: str | None = payload.get("sub")
+        user_id: str | None = payload.get("sub")
 
-        if email is None:
+        if user_id is None:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid access token",
@@ -135,7 +135,7 @@ def get_current_user(
             detail="Invalid access token",
         )
 
-    user = db.query(User).filter(User.email == email).first()
+    user = db.query(User).filter(User.id == int(user_id)).first()
 
     if user is None:
         raise HTTPException(
@@ -144,7 +144,6 @@ def get_current_user(
         )
 
     return user
-
 
 from fastapi import Depends, HTTPException, status
 

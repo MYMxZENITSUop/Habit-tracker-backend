@@ -102,12 +102,11 @@ def login_user(
     ).update({"revoked": True})
 
     access_token = create_access_token(
-        data={"sub": user.email},
-        expires_delta=timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES),
+    data={"sub": str(user.id)},
+    expires_delta=timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES),
     )
-
     refresh_token = create_refresh_token(
-        data={"sub": user.email}
+    data={"sub": str(user.id)}
     )
 
     db_refresh_token = RefreshToken(

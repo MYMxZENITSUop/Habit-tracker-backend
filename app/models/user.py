@@ -32,9 +32,9 @@ class User(Base):
     # 🧑‍⚖️ Role
     role = Column(String, default="user")
 
-    # 🔗 Tasks relationship
-    tasks = relationship(
-        "Task",
+    # 🔗 Habits
+    habits = relationship(
+        "Habit",
         back_populates="owner",
         cascade="all, delete"
     )
@@ -45,4 +45,3 @@ class User(Base):
         back_populates="user",
         cascade="all, delete"
     )
-

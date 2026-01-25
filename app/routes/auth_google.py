@@ -16,7 +16,6 @@ from app.core.security import (
 router = APIRouter(prefix="/auth", tags=["Auth - Google"])
 
 
-# ✅ Request schema (IMPORTANT)
 class GoogleAuthRequest(BaseModel):
     firebase_token: str
 
@@ -26,14 +25,6 @@ def google_auth(
     payload: GoogleAuthRequest,
     db: Session = Depends(get_db),
 ):
-    """
-    Expects:
-    {
-      "firebase_token": "<FIREBASE_ID_TOKEN>"
-    }
-    """
-
-    # 🔐 Verify Firebase ID token
     try:
         decoded_token = firebase_auth.verify_id_token(
             payload.firebase_token
@@ -53,26 +44,23 @@ def google_auth(
             detail="Email not available from Google",
         )
 
-    # 🔍 Check if user exists
     user = db.query(User).filter(User.email == email).first()
 
-    # 🆕 Create user if first-time Google login
     if not user:
         user = User(
             name=name,
             email=email,
-            hashed_password="",  # Google users don't need password
+            hashed_password="",
             role="user",
         )
         db.add(user)
         db.commit()
         db.refresh(user)
 
-    # 🔐 Create JWT tokens
-    access_token = create_access_token({"sub": user.email})
-    refresh_token = create_refresh_token({"sub": user.email})
+    # ✅ FIXED: use user.id in JWT
+    access_token = create_access_token({"sub": str(user.id)})
+    refresh_token = create_refresh_token({"sub": str(user.id)})
 
-    # 💾 Store refresh token
     db_refresh = RefreshToken(
         token=refresh_token,
         user_id=user.id,

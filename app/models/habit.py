@@ -28,6 +28,7 @@ class HabitLog(Base):
     __tablename__ = "habit_logs"
 
     id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     date = Column(Date, nullable=False, index=True)
     completed = Column(Boolean, default=False)
     sleep_hours = Column(Integer, nullable=True)
@@ -42,6 +43,6 @@ class HabitLog(Base):
     habit = relationship("Habit", back_populates="logs")
 
     __table_args__ = (
-        UniqueConstraint("habit_id", "date", name="unique_habit_day"),
-        Index("idx_habit_month", "habit_id", "date"),
+        UniqueConstraint("user_id","habit_id", "date", name="unique_habit_day"),
+        Index("idx_habit_month","user_id", "habit_id", "date"),
     )

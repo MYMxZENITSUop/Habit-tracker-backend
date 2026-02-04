@@ -128,6 +128,7 @@ def toggle_habit(
         db.query(HabitLog)
         .filter(
             HabitLog.habit_id == habit_id,
+            HabitLog.user_id == current_user.id,
             HabitLog.date == log_date
         )
         .first()
@@ -138,6 +139,7 @@ def toggle_habit(
     else:
         log = HabitLog(
             habit_id=habit_id,
+            user_id = current_user.id,
             date=log_date,
             completed=True
         )

@@ -304,10 +304,3 @@ def get_all_users_admin(
     admin_user: User = Depends(require_admin),
 ):
     return db.query(User).all()
-
-@router.get("/me")
-def get_me(current_user=Depends(get_current_user)):
-    return {
-        "id": current_user.id,
-        "email": current_user.email,
-    }
